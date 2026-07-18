@@ -654,6 +654,7 @@
 	desc = "An ornate amulet representing a prestigious noble house."
 	slot_flags = ITEM_SLOT_NECK|ITEM_SLOT_WRISTS|ITEM_SLOT_HIP
 	sellprice = 10
+	var/picked = FALSE
 
 /obj/item/clothing/neck/roguetown/ornateamulet/noble/attack_right(mob/user)
 	if(choicename)
@@ -667,6 +668,29 @@
 		return
 	if(world.time > (current_time + 30 SECONDS))
 		return
+
+/obj/item/clothing/neck/roguetown/ornateamulet/noble/attack_right(mob/user)
+	..()
+	if(!picked)
+		var/choice = input(user, "Choose a color.", "Otavan colors") as anything in GLOB.colorlist
+		var/playerchoice = GLOB.colorlist[choice]
+		picked = TRUE
+		detail_color = playerchoice
+		detail_tag = "_detail"
+		update_icon()
+		if(loc == user && ishuman(user))
+			var/mob/living/carbon/H = user
+			H.update_inv_neck()
+			H.update_icon()
+
+/obj/item/clothing/neck/roguetown/ornateamulet/noble/attack_right(mob/user)
+	cut_overlays()
+	if(get_detail_tag())
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		pic.appearance_flags = RESET_COLOR
+		if(get_detail_color())
+			pic.color = get_detail_color()
+		add_overlay(pic)
 
 /obj/item/clothing/neck/roguetown/skullamulet
 	name = "skull amulet"
